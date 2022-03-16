@@ -16,6 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from survey_api.views import QuestionAPIView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('list-questions/', QuestionAPIView.as_view(), name='questions')
 ]

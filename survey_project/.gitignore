@@ -4,4 +4,7 @@ venv/
 **/__pycache__
 __pycache__/
 **/__pycache__/
-*.pyc
+*.py
+db.sqlite3
+survey_project.db.sqlite3
+survey_project.idea/
