@@ -4,10 +4,11 @@ from .models import Question, Answer, UserAnswer
 
 
 class AnswerSerializer(serializers.ModelSerializer):
+    answer = serializers.CharField(source='letter')
 
     class Meta:
         model = Answer
-        fields = ['text']
+        fields = ['question', 'answer']
 
 
 class QuestionSerializer(serializers.ModelSerializer):

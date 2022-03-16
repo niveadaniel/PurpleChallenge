@@ -5,7 +5,7 @@ from .models import Question, Answer
 
 @admin.register(Question)
 class Question(admin.ModelAdmin):
-    list_display = ['number', 'text']
+    list_display = ['number', 'text', 'is_comment']
 
 
 @admin.register(Answer)
