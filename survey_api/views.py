@@ -4,17 +4,18 @@ from rest_framework.views import APIView
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ValidationError
 
-from .serializers import QuestionSerializer, AnswerSerializer, UserAnswerSerializer
-from .models import Question, Answer
+from .serializers import QuestionSerializer, UserAnswerSerializer
+from .models import Question, Answer, UserAnswer
 
 
 def index(request):
-    return redirect('questions')
+    return redirect('list-questions')
 
 class QuestionAPIView(generics.ListAPIView):
     """
-        Endpoint to allow users to request the question's list
+        Endpoint to allow users to request the questions list
     """
     permission_classes = (IsAuthenticated,)
     serializer_class = QuestionSerializer
@@ -35,59 +36,40 @@ class UserAnswerAPIView(APIView):
     def post(self, request):
         try:
             data = request.data.copy()
-            print(data)
             """
                 Creating a new data queryset to extract properly 
-                the answers of each user into a ManyToMany type
+                the answers of each user into a ManyToMany format
             """
             new_data = [{'user': request.user.id,
                         'answers': [Answer.objects.get(question=answer['question'],
                                                         letter=answer['answer']).id
                                     for answer in data if 'answer' in answer],
                         'comment': data[0]['comment'] if 'comment' in data[0] else ''}]
+
             serializer = UserAnswerSerializer(data=new_data, many=True)
             if serializer.is_valid():
-                print(serializer.data)
                 serializer.save()
-                return Response({'status': 'success', 'data': serializer.data},
+                return Response({'detail': 'Survey completed!'},
                                 status=status.HTTP_200_OK)
             else:
-                return Response({'status': 'error', 'message': serializer.errors},
+                return Response({'message': serializer.errors},
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
             print(ex)
-            return Response({'status': 'error',
-                             'message': 'Inalid answer format or data. '
+            return Response({'detail': 'Inalid answer format or data. '
                                         'You have to insert a valid answer of each question'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        # question_number = data.get('question')
 
-        # if question_number:
-        #     user_answer = UserAnswer.objects.filter(user=request.user)
-        #     question = Question.objects.get(number=int(question_number))
-        #
-        #     if not user_answer:
-        #         data['date'] = date.today()
-        #         data['user'] = request.user.id
-        #         data['answer'] = Answer.objects.get(question=question,
-        #                                             letter=data['answer']).id if 'answer' in data else None
+class ListAnswerAPIView(generics.ListAPIView):
+    """
+        Endpoint to allow users to request the answers list
+    """
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserAnswerSerializer
 
-
-            # else:
-            #     if question.is_comment:
-            #         user_answer[0].update(comment=data['comment'])
-            #     else:
-            #         try:
-            #             answer = Answer.objects.get(question=int(question_number),
-            #                                         letter=data['answer'])
-            #             user_answer[0].answer.add(answer)
-            #         except Exception as ex:
-            #             print(ex)
-            #             return Response('There was an error, you have '
-            #                             'to insert a valid question and answer.')
-            #
-            #     user_answer[0].save()
-            #
-            #     return Response({"status": "success"},
-            #                     status=status.HTTP_200_OK)
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            answers = UserAnswer.objects.all()
+            return answers
+        raise ValidationError({"error": ["You don't have enough permission."]})

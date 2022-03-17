@@ -1,6 +1,17 @@
+import datetime
+
 from rest_framework import serializers
 
 from .models import Question, Answer, UserAnswer
+
+class AnswersListField(serializers.RelatedField):
+    def to_representation(self, value):
+        return '%s' % (value.text)
+
+
+class DateField(serializers.RelatedField):
+    def to_representation(self, value):
+        return value.strftime('%d/%m/%Y')
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -21,6 +32,10 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class UserAnswerSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='user.email')
+    # answers = serializers.StringRelatedField(many=True)
+    answers = AnswersListField(many=True, read_only=True)
+    date = DateField(read_only=True)
 
     def create(self, validated_data):
         try:
@@ -31,7 +46,9 @@ class UserAnswerSerializer(serializers.ModelSerializer):
             if not (answers or comment):
                 raise serializers.ValidationError()
 
-            user_answer = UserAnswer.objects.create(user=user, **validated_data)
+            user_answer = UserAnswer.objects.create(user=user,
+                                                    comment=comment,
+                                                    **validated_data)
             print(user_answer)
             for answer in answers:
                 user_answer.answers.add(answer)
@@ -49,4 +66,4 @@ class UserAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserAnswer
-        fields = ['user', 'answers', 'comment']
+        fields = ['user', 'date', 'answers', 'comment']

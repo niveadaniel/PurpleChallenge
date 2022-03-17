@@ -28,7 +28,7 @@ class Answer(models.Model):
     letter = models.CharField(max_length=1, null=False, blank=False)
 
     def __str__(self):
-        return '{}: {}'.format(self.letter, self.text)
+        return '{}. {}'.format(self.letter, self.text)
 
     def validate_unique(self, *args, **kwargs):
         super().validate_unique(*args, **kwargs)

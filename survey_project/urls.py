@@ -21,6 +21,7 @@ from survey_api import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
-    path('list-questions/', views.QuestionAPIView.as_view(), name='questions'),
-    path('answer/', views.UserAnswerAPIView.as_view(), name='answer')
+    path('list-questions/', views.QuestionAPIView.as_view(), name='list-questions'),
+    path('answer/', views.UserAnswerAPIView.as_view(), name='answer'),
+    path('list-answers/', views.ListAnswerAPIView.as_view(), name='list-answers')
 ]
