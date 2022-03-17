@@ -22,5 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
     path('list-questions/', views.QuestionAPIView.as_view(), name='questions'),
-    path('answer/', views.AnswerAPIView.as_view(), name='answer')
+    path('answer/', views.UserAnswerAPIView.as_view(), name='answer')
 ]

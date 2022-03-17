@@ -22,6 +22,31 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 class UserAnswerSerializer(serializers.ModelSerializer):
 
+    def create(self, validated_data):
+        try:
+            print(validated_data)
+            answers = validated_data.pop('answers') if 'answers' in validated_data else []
+            user = validated_data.pop('user')
+            comment = validated_data.pop('comment') if 'comment' in validated_data else ''
+            if not (answers or comment):
+                raise serializers.ValidationError()
+
+            user_answer = UserAnswer.objects.create(user=user, **validated_data)
+            print(user_answer)
+            for answer in answers:
+                user_answer.answers.add(answer)
+            user_answer.save()
+
+        except Exception as e:
+            raise serializers.ValidationError(e)
+
+        return user_answer
+
+    def validate_user(self, value):
+        if UserAnswer.objects.filter(user=value):
+            raise serializers.ValidationError('This user already answered the survey')
+        return value
+
     class Meta:
         model = UserAnswer
-        fields = '__all__'
+        fields = ['user', 'answers', 'comment']
