@@ -1,22 +1,22 @@
 
-# Custmer Survey API by Purple Metrics
+# Custmer Survey API
 This is a REST API project made to provide a customer survey.
 
-#Getting started:
+# Getting started:
 
-##Into the PurpleChallenge folder:
-##Prepare your Environment
+## Into the PurpleChallenge folder:
+## Prepare your Environment
 Create your virtual environment (Linux):
 
 run ``python3 -m venv env``
 and then run `source env/bin/activate` to activate
 
-##Dependencies
+## Dependencies
 Install all dependencies of the project.
 
 run ``pip install -r requirements.txt``
 
-##Migrating database
+## Migrating database
 Migrate the database with the tables provided by Django.
 
 run ``python manage.py migrate``
