@@ -16,6 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from rest_framework.authtoken.views import obtain_auth_token
+
 from survey_api import views
 
 urlpatterns = [
@@ -23,5 +25,6 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('list-questions/', views.QuestionAPIView.as_view(), name='list-questions'),
     path('answer/', views.UserAnswerAPIView.as_view(), name='answer'),
-    path('list-answers/', views.ListAnswerAPIView.as_view(), name='list-answers')
+    path('list-answers/', views.ListAnswerAPIView.as_view(), name='list-answers'),
+    path('api-token-auth/', obtain_auth_token, name='api_token_auth')
 ]
