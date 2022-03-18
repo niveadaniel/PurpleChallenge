@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .models import Question, Answer, UserAnswer
+from django.contrib.admin.models import LogEntry
 
 
 @admin.register(Question)
@@ -19,3 +20,7 @@ class UserAnswer(admin.ModelAdmin):
 
     def get_answers(self, obj):
         return ",\n".join([a.text for a in obj.answers.all()])
+
+@admin.register(LogEntry)
+class LogEntry(admin.ModelAdmin):
+    list_display = ['id']

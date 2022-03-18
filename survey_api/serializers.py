@@ -4,9 +4,10 @@ from rest_framework import serializers
 
 from .models import Question, Answer, UserAnswer
 
+
 class AnswersListField(serializers.RelatedField):
     def to_representation(self, value):
-        return '%s' % (value.text)
+        return '%s. %s' % (value.letter, value.text)
 
 
 class DateField(serializers.RelatedField):
@@ -23,7 +24,7 @@ class AnswerSerializer(serializers.ModelSerializer):
 
 
 class QuestionSerializer(serializers.ModelSerializer):
-    answers = serializers.StringRelatedField(many=True)
+    answers = AnswersListField(many=True, read_only=True)
     question = serializers.CharField(source='text')
 
     class Meta:
@@ -32,10 +33,9 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class UserAnswerSerializer(serializers.ModelSerializer):
-    user = serializers.CharField(source='user.email')
+    # user = serializers.CharField(source='user.username')
     # answers = serializers.StringRelatedField(many=True)
-    answers = AnswersListField(many=True, read_only=True)
-    date = DateField(read_only=True)
+    # date = DateField(read_only=True)
 
     def create(self, validated_data):
         try:
@@ -45,6 +45,9 @@ class UserAnswerSerializer(serializers.ModelSerializer):
             comment = validated_data.pop('comment') if 'comment' in validated_data else ''
             if not (answers or comment):
                 raise serializers.ValidationError()
+            print(user)
+            print(answers)
+            print(comment)
 
             user_answer = UserAnswer.objects.create(user=user,
                                                     comment=comment,
@@ -63,6 +66,16 @@ class UserAnswerSerializer(serializers.ModelSerializer):
         if UserAnswer.objects.filter(user=value):
             raise serializers.ValidationError('This user already answered the survey')
         return value
+
+    class Meta:
+        model = UserAnswer
+        fields = ['user', 'date', 'answers', 'comment']
+
+
+class ListUserAnswerSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='user.username')
+    answers = serializers.StringRelatedField(many=True)
+    date = DateField(read_only=True)
 
     class Meta:
         model = UserAnswer
