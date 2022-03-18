@@ -41,15 +41,16 @@ class UserAnswerAPIView(APIView):
                     Creating a new data queryset to extract properly 
                     the answers of each user into a ManyToMany format
                 """
-                print(data)
+                new_data = {'user': request.user.id, 'answers': []}
+                for answer in data:
+                    new_data['answers'] += [Answer.objects.get(question=answer['question'],
+                                                        letter=answer['answer']).id] if 'answer' in answer else []
+                    if Question.objects.get(id=answer['question']).\
+                            is_comment and 'comment' in answer:
+                                new_data['comment'] = answer['comment']
 
-                new_data = [{'user': request.user.id,
-                            'answers': [Answer.objects.get(question=answer['question'],
-                                                            letter=answer['answer']).id
-                                        for answer in data if 'answer' in answer],
-                            'comment': data[0]['comment'] if 'comment' in data[0] else ''}]
-                serializer = UserAnswerSerializer(data=new_data, many=True)
-                print(new_data)
+                serializer = UserAnswerSerializer(data=[new_data], many=True)
+
                 if serializer.is_valid():
                     serializer.save()
                     return Response({'detail': 'Survey completed!'},
